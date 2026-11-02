@@ -1,0 +1,33 @@
+{% load static %}
+
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <title>Attendance Chimp</title>
+    <link rel="stylesheet" href="{% static 'app/css/styles.css' %}">
+</head>
+<html>
+    <h1>Sign Up</h1>
+
+    <body class="center">
+        <form class="form" action="/app/createUser" method="POST">
+            
+            <label>Username </label>
+            <input type="text" name="user_name">
+
+            <label>Email </label>
+            <input type="text" name="email">
+            
+            <label>Password </label>
+            <input type="text" name="password">
+
+            <div class="radio-group">
+                <input type="radio" id="student" name="role" value="is_student"/>
+                <label for="student">Student</label>
+            </div>
+             
+            <button type="submit" value="Sign up">Sign Up</button>
+
+        </form>
+    </body>
+</html>

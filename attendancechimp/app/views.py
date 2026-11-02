@@ -5,6 +5,15 @@ from decimal import Decimal, InvalidOperation
 from zoneinfo import ZoneInfo
 
 from django.http import HttpRequest, HttpResponse
+from django.template import loader
+
+from django.views.decorators.http import require_GET, require_POST
+
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.models import User
+
+from django.views.decorators.csrf import csrf_exempt
+
 
 CDT = ZoneInfo("America/Chicago")
 
@@ -34,3 +43,60 @@ def sum_view(request: HttpRequest) -> HttpResponse:
         return HttpResponse("Bad Request: n1 and n2 must be numbers", status=400, content_type="text/plain")
 
     return HttpResponse(_decimal_to_str(val), content_type="text/plain")
+
+def index(request):
+    
+    bio = 'This is the AttendanceChimp App'
+    user_name = request.user if request.user.is_authenticated else "Not logged in"
+    time = datetime.now(tz=CDT)
+
+    context = {
+        'bio': bio,
+        'name': user_name,
+        'time': time
+    }
+
+    template = loader.get_template('app/index.html')
+    rendered_html = template.render(context, request)
+    return HttpResponse(rendered_html)
+
+def new(request):
+    if request.method == "GET":
+        template = loader.get_template('app/new.html')
+        return HttpResponse(template.render({}, request))
+    else: 
+        return HttpResponse("Method not allowed", status=405)
+
+@csrf_exempt
+def create_new(request):
+    if request.method == "POST":
+        user_name = request.POST.get("user_name")
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+        is_student = request.POST.get("is_student")
+        
+        print(User.objects.all())
+
+        if not user_name or not password:
+                return HttpResponse("Username and password are required.", status=400)
+
+        user_exists = User.objects.filter(email=email).exists()
+
+        if user_exists:
+            return HttpResponse("That email is already taken.")
+        
+        new_user = User.objects.create_user(
+            username=user_name, 
+            email=email, 
+            password=password, 
+            is_staff=not bool(is_student)
+        )
+
+        login(request, new_user)
+
+        return HttpResponse("User has been created!", status=200)
+    
+    return HttpResponse("Method Not Allowed", status=405)
+
+
+
