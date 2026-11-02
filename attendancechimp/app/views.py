@@ -45,10 +45,9 @@ def sum_view(request: HttpRequest) -> HttpResponse:
     return HttpResponse(_decimal_to_str(val), content_type="text/plain")
 
 def index(request):
-    
     bio = 'This is the AttendanceChimp App'
     user_name = request.user if request.user.is_authenticated else "Not logged in"
-    time = datetime.now(tz=CDT)
+    time = datetime.now().strftime('%H:%M')
 
     context = {
         'bio': bio,
@@ -83,7 +82,7 @@ def create_new(request):
         user_exists = User.objects.filter(email=email).exists()
 
         if user_exists:
-            return HttpResponse("That email is already taken.")
+            return HttpResponse("That email is already taken.", status=400)
         
         new_user = User.objects.create_user(
             username=user_name, 
