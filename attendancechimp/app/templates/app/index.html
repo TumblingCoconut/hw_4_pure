@@ -1,18 +1,18 @@
 {% load static %}
 
 <!DOCTYPE html>
-<head>
-    <meta charset="UTF-8">
-    <title>Attendance Chimp</title>
-    <link rel="stylesheet" href="{% static 'app/css/styles.css' %}">
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <title>Attendance Chimp</title>
+        <link rel="stylesheet" href="{% static 'app/css/styles.css' %}">
+    </head>
 <html>
     <body class="center">
 
         <h1>Attendance Chimp</h1>
         <p>This is an attendance app for lectures</p>
-        {% if current_user.is_authenticated %}
-            <h1>User <strong>current_user</strong></h1>
+        {% if user.is_authenticated %}
+            <h1>Welcome back <strong>{{ user.username }}</strong></h1>
         {% else %}
             <p>User: <strong>Not logged in</strong></p>
         {% endif %}
