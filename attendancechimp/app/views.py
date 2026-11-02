@@ -59,6 +59,7 @@ def index(request):
     rendered_html = template.render(context, request)
     return HttpResponse(rendered_html)
 
+@require_GET
 def new(request):
     if request.method == "GET":
         template = loader.get_template('app/new.html')
