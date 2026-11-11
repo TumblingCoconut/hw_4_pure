@@ -112,11 +112,11 @@ def create_new(request):
 def is_instructor(user):
     return (user.is_authenticated 
             and hasattr(user, "instructor_profile") 
-            and not hasattr(user, "instructor_profile"))
+            and not hasattr(user, "student_profile"))
 
 def is_student(user):
     return (user.is_authenticated 
-            and hasattr(user, "instructor_profile") 
+            and hasattr(user, "student_profile") 
             and not hasattr(user, "instructor_profile"))
 
 
