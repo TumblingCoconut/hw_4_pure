@@ -49,6 +49,7 @@ def sum_view(request: HttpRequest) -> HttpResponse:
 
     return HttpResponse(_decimal_to_str(val), content_type="text/plain")
 
+
 def index(request):
     ''''''
     bio = 'This is the AttendanceChimp App'
@@ -65,13 +66,15 @@ def index(request):
     rendered_html = template.render(context, request)
     return HttpResponse(rendered_html)
 
+
 @require_GET
 def new(request):
     if request.method == "GET":
         template = loader.get_template('app/new.html')
         return HttpResponse(template.render({}, request))
-    else: 
+    else:
         return HttpResponse("Method not allowed", status=405)
+
 
 @csrf_exempt
 def create_new(request):
@@ -80,11 +83,11 @@ def create_new(request):
         email = request.POST.get("email")
         password = request.POST.get("password")
         is_student = request.POST.get("is_student")
-        
+
         print(User.objects.all())
 
         if not user_name or not password:
-                return HttpResponse("Username and password are required.", status=400)
+            return HttpResponse("Username and password are required.", status=400)
 
         user_exists = User.objects.filter(email=email).exists()
 
@@ -92,10 +95,10 @@ def create_new(request):
             return HttpResponse("That email is already taken.", status=400)
 
         new_user = User.objects.create_user(
-            username=user_name, 
-            email=email, 
-            password=password, 
-            is_staff= not(is_student == "student")
+            username=user_name,
+            email=email,
+            password=password,
+            is_staff=not (is_student == "student")
         )
 
         if is_student == "student":
@@ -106,18 +109,18 @@ def create_new(request):
         login(request, new_user)
 
         return HttpResponse("User has been created!", status=200)
-    
+
     return HttpResponse("Method Not Allowed", status=405)
 
+
 def is_instructor(user):
-    return (user.is_authenticated 
-            and hasattr(user, "instructor_profile") 
-            and not hasattr(user, "student_profile"))
+    return (user.is_authenticated
+            and hasattr(user, "instructor_profile"))
+
 
 def is_student(user):
-    return (user.is_authenticated 
-            and hasattr(user, "student_profile") 
-            and not hasattr(user, "instructor_profile"))
+    return (user.is_authenticated
+            and hasattr(user, "student_profile"))
 
 
 @require_GET
@@ -125,7 +128,7 @@ def newCoursePage(request):
     if request.method == "GET":
         template = loader.get_template("app/new_course.html")
         return HttpResponse(template.render({}, request))
-    else: 
+    else:
         return HttpResponse("Method not allowed", status=405)
 
 
@@ -147,7 +150,7 @@ def createCourse(request):
 
     if not selected_days:
         return HttpResponse("Select day(s) of week", status=400)
-    
+
     Course.objects.create(
         name=name,
         start_time=start_time,
@@ -158,16 +161,17 @@ def createCourse(request):
         day_thu="day-thu" in request.POST,
         day_fri="day-fri" in request.POST,
         instructor_id=InstructorProfile.objects.get(user_id=user.id).id
-    )   
+    )
 
     return HttpResponse("Course created successfully", status=200)
+
 
 @require_GET
 def newLecturePage(request):
     if request.method == "GET":
         template = loader.get_template("app/new_lecture.html")
         return HttpResponse(template.render({}, request))
-    else: 
+    else:
         return HttpResponse("Method not allowed", status=405)
 
 
@@ -181,7 +185,6 @@ def createLecture(request):
     course = request.POST.get("choice")
     date = request.POST.get("date")
 
-
     Lecture.objects.create(
         date=date,
         course_id=Course.objects.get(name=course).id
@@ -189,11 +192,12 @@ def createLecture(request):
     )
     return HttpResponse("Lecture created", status=200)
 
+
 def newQRUploadPage(request):
     if request.method == "GET":
-                template = loader.get_template("app/new_qr_upload.html")
-                return HttpResponse(template.render({}, request))
-    else: 
+        template = loader.get_template("app/new_qr_upload.html")
+        return HttpResponse(template.render({}, request))
+    else:
         return HttpResponse("Method not allowed", status=405)
 
 
@@ -211,10 +215,11 @@ def createQRCodeUpload(request):
     QRCodeUpload.objects.create(
         student_id=user.student_profile.id,
         image=image,
-        uploaded_at= datetime.now(tz=CDT)
+        uploaded_at=datetime.now(tz=CDT)
     )
 
     return HttpResponse("Upload created", status=200)
+
 
 @require_GET
 def dumpUploads(request):
@@ -232,4 +237,3 @@ def dumpUploads(request):
         for u in uploads
     ]
     return JsonResponse(data, safe=False)
-    
