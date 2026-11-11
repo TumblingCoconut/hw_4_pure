@@ -115,12 +115,12 @@ def create_new(request):
 
 def is_instructor(user):
     return (user.is_authenticated
-            and hasattr(user, "instructor_profile"))
+            and hasattr(user, "instructorprofile"))
 
 
 def is_student(user):
     return (user.is_authenticated
-            and hasattr(user, "student_profile"))
+            and hasattr(user, "studentprofile"))
 
 
 @require_GET
@@ -136,7 +136,7 @@ def newCoursePage(request):
 @require_POST
 def createCourse(request):
     user = request.user
-    if not is_instructor(user):
+    if not request.user.isauthenticated or not hasattr(request.user, 'instructorprofile'):
         return HttpResponse("Unauthorized", status=401)
 
     name = request.POST.get("course-name")
@@ -178,8 +178,7 @@ def newLecturePage(request):
 @csrf_exempt
 @require_POST
 def createLecture(request):
-    user = request.user
-    if not is_instructor(user):
+    if not request.user.isauthenticated or not hasattr(request.user, 'instructorprofile'):
         return HttpResponse("Unauthorized", status=401)
 
     course = request.POST.get("choice")
@@ -205,7 +204,7 @@ def newQRUploadPage(request):
 @require_POST
 def createQRCodeUpload(request):
     user = request.user
-    if not is_student(user):
+    if not request.user.isauthenticated or not hasattr(request.user, 'studentprofile'):
         return HttpResponse("Unauthorized", status=401)
 
     image = request.FILES.get("imageUpload")
@@ -224,7 +223,7 @@ def createQRCodeUpload(request):
 @require_GET
 def dumpUploads(request):
     user = request.user
-    if not is_instructor(user):
+    if not request.user.isauthenticated or not hasattr(request.user, 'instructorprofile'):
         return HttpResponse("Unauthorized", status=401)
 
     uploads = QRCodeUpload.objects.select_related("student")
