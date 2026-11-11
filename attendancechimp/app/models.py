@@ -8,7 +8,7 @@ matches it to a lecture, and records the attendance.
 
 Entities
 --------
-- CourseProfile   : extends Django User → instructor-specific data
+- InstructorProfile   : extends Django User → instructor-specific data
 - StudentProfile  : extends Django User → student-specific data
 - Course          : a course taught by one instructor
 - Enrollment      : junction table linking students to courses

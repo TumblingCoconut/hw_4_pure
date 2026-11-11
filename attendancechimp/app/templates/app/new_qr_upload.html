@@ -1,0 +1,26 @@
+<!-- {% load static %} -->
+
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <title>Attendance Chimp</title>
+    <link rel="stylesheet" href="{% static 'app/css/styles.css' %}">
+</head>
+<html>
+    <h1>New QR Upload</h1>
+
+    <!-- Optional: shows errors if login fails -->
+    {{ form.errors }}
+
+
+    <body class="center">
+        <form class="form" method="POST" action="{% url 'createQRCodeUpload' %}" enctype="multipart/form-data">
+            
+            <label>QR Code file </label>
+            <input type="file" name="image-upload" accept="image/*">
+             
+            <button type="submit" value="submit">Submit</button>
+        </form>
+        
+    </body>
+</html>
