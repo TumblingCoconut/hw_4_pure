@@ -51,7 +51,9 @@ def sum_view(request: HttpRequest) -> HttpResponse:
 
 
 def index(request):
-    ''''''
+    """
+    Returns AttendanceChimp home page
+    """
     bio = 'This is the AttendanceChimp App'
     user_name = request.user if request.user.is_authenticated else "Not logged in"
     time = datetime.now().strftime('%H:%M')
@@ -69,6 +71,7 @@ def index(request):
 
 @require_GET
 def new(request):
+    """Returns account sign up page"""
     if request.method == "GET":
         template = loader.get_template('app/new.html')
         return HttpResponse(template.render({}, request))
@@ -78,6 +81,7 @@ def new(request):
 
 @csrf_exempt
 def create_new(request):
+    """Authenticates and writes new user to database"""
     if request.method == "POST":
         user_name = request.POST.get("user_name")
         email = request.POST.get("email")
@@ -114,17 +118,22 @@ def create_new(request):
 
 
 def is_instructor(user):
+    """checks user permissions for student permission"""
     return (user.is_authenticated
-            and hasattr(user, "instructor_profile"))
+            and hasattr(user, "instructor_profile")
+            and not hasattr(user, "student_profile"))
 
 
 def is_student(user):
+    """checks user permissions for instructor permission"""
     return (user.is_authenticated
-            and hasattr(user, "student_profile"))
+            and hasattr(user, "student_profile")
+            and not hasattr(user, "instructor_profile"))
 
 
 @require_GET
 def newCoursePage(request):
+    """returns new course page"""
     if request.method == "GET":
         template = loader.get_template("app/new_course.html")
         return HttpResponse(template.render({}, request))
@@ -135,6 +144,7 @@ def newCoursePage(request):
 @csrf_exempt
 @require_POST
 def createCourse(request):
+    """write new course to database"""
     user = request.user
     if not is_instructor(user):
         return HttpResponse("Unauthorized", status=401)
@@ -142,6 +152,7 @@ def createCourse(request):
     name = request.POST.get("course-name")
     start_time = request.POST.get("start-time")
     end_time = request.POST.get("end-time")
+
     if not (name and start_time and end_time):
         return HttpResponse("Missing name or course time", status=400)
 
@@ -168,6 +179,7 @@ def createCourse(request):
 
 @require_GET
 def newLecturePage(request):
+    """returns new lecture page"""
     if request.method == "GET":
         template = loader.get_template("app/new_lecture.html")
         return HttpResponse(template.render({}, request))
@@ -178,6 +190,7 @@ def newLecturePage(request):
 @csrf_exempt
 @require_POST
 def createLecture(request):
+    """creates writes new lecture to datab"""
     user = request.user
     if not is_instructor(user):
         return HttpResponse("Unauthorized", status=401)
@@ -194,6 +207,7 @@ def createLecture(request):
 
 
 def newQRUploadPage(request):
+    """return new QR Upload page"""
     if request.method == "GET":
         template = loader.get_template("app/new_qr_upload.html")
         return HttpResponse(template.render({}, request))
@@ -204,6 +218,7 @@ def newQRUploadPage(request):
 @csrf_exempt
 @require_POST
 def createQRCodeUpload(request):
+    """upload QR Code to database"""
     user = request.user
     if not is_student(user):
         return HttpResponse("Unauthorized", status=401)
@@ -223,6 +238,7 @@ def createQRCodeUpload(request):
 
 @require_GET
 def dumpUploads(request):
+    """Returns json dump of all uploaded QR code files"""
     user = request.user
     if not is_instructor(user):
         return HttpResponse("Unauthorized", status=401)
