@@ -123,7 +123,7 @@ def newCoursePage(request):
 @require_POST
 def createCourse(request):
     user = request.user
-    if not user.is_authenticated or not user.is_staff:
+    if not user.is_authenticated or not hasattr(user, "InstructorProfile"):
         return HttpResponse("Unauthorized", status=401)
 
     name = request.POST.get("course-name")
@@ -165,13 +165,11 @@ def newLecturePage(request):
 @require_POST
 def createLecture(request):
     user = request.user
-    if not user.is_authenticated or not user.is_staff:
+    if not user.is_authenticated or not hasattr(user, "InstructorProfile"):
             return HttpResponse("Unauthorized", status=401)
 
-    course = request.POST.get("course-name")
+    course = request.POST.get("choice")
     date = request.POST.get("date")
-
-    print(Course.objects.get(name=course).id)
 
 
     Lecture.objects.create(
@@ -196,7 +194,7 @@ def createQRCodeUpload(request):
     if not user.is_authenticated or not hasattr(user, "student_profile"):
             return HttpResponse("Unauthorized", status=401)
 
-    image = request.FILES.get("image-upload")
+    image = request.FILES.get("imageUpload")
     if image is None:
          return HttpResponse("Missing image upload", status=400)
 
@@ -212,7 +210,7 @@ def createQRCodeUpload(request):
 def dumpUploads(request):
     user = request.user
     if not user.is_authenticated or not hasattr(user, "instructor_profile"):
-        return HttpResponse("Unauthorized", status=400)
+        return HttpResponse("Unauthorized", status=401)
 
     uploads = QRCodeUpload.objects.select_related("student")
 
