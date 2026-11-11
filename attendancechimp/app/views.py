@@ -132,40 +132,36 @@ def newCoursePage(request):
 @csrf_exempt
 @require_POST
 def createCourse(request):
-    print("DEBUG createCourse:", request.user, request.user.is_authenticated,
-      hasattr(request.user, "instructor_profile"),
-      hasattr(request.user, "student_profile"),
-      is_instructor(request.user))
-
-    user = request.user
-    if not is_instructor(user):
+    try:
+        InstructorProfile.objects.get(user=request.user) 
+    except:
         return HttpResponse("Unauthorized", status=401)
-    else:
-        name = request.POST.get("course-name")
-        start_time = request.POST.get("start-time")
-        end_time = request.POST.get("end-time")
-        if not (name and start_time and end_time):
-            return HttpResponse("Missing name or course time", status=400)
 
-        possible_days = ["day-mon", "day-tue", "day-wed", "day-thu", "day-fri"]
-        selected_days = [day for day in possible_days if request.POST.get(day)]
+    name = request.POST.get("course-name")
+    start_time = request.POST.get("start-time")
+    end_time = request.POST.get("end-time")
+    if not (name and start_time and end_time):
+        return HttpResponse("Missing name or course time", status=400)
 
-        if not selected_days:
-            return HttpResponse("Select day(s) of week", status=400)
-        
-        Course.objects.create(
-            name=name,
-            start_time=start_time,
-            end_time=end_time,
-            day_mon="day-mon" in request.POST,
-            day_tue="day-tue" in request.POST,
-            day_wed="day-wed" in request.POST,
-            day_thu="day-thu" in request.POST,
-            day_fri="day-fri" in request.POST,
-            instructor_id=InstructorProfile.objects.get(user_id=user.id).id
-        )   
+    possible_days = ["day-mon", "day-tue", "day-wed", "day-thu", "day-fri"]
+    selected_days = [day for day in possible_days if request.POST.get(day)]
 
-        return HttpResponse("Course created successfully", status=200)
+    if not selected_days:
+        return HttpResponse("Select day(s) of week", status=400)
+    
+    Course.objects.create(
+        name=name,
+        start_time=start_time,
+        end_time=end_time,
+        day_mon="day-mon" in request.POST,
+        day_tue="day-tue" in request.POST,
+        day_wed="day-wed" in request.POST,
+        day_thu="day-thu" in request.POST,
+        day_fri="day-fri" in request.POST,
+        instructor_id=InstructorProfile.objects.get(user_id=user.id).id
+    )   
+
+    return HttpResponse("Course created successfully", status=200)
 
 @require_GET
 def newLecturePage(request):
@@ -179,20 +175,21 @@ def newLecturePage(request):
 @csrf_exempt
 @require_POST
 def createLecture(request):
-    user = request.user
-    if not is_instructor(user):
+    try:
+        InstructorProfile.objects.get(user=request.user) 
+    except:
         return HttpResponse("Unauthorized", status=401)
-    else:
-        course = request.POST.get("choice")
-        date = request.POST.get("date")
+
+    course = request.POST.get("choice")
+    date = request.POST.get("date")
 
 
-        Lecture.objects.create(
-            date=date,
-            course_id=Course.objects.get(name=course).id
+    Lecture.objects.create(
+        date=date,
+        course_id=Course.objects.get(name=course).id
 
-        )
-        return HttpResponse("Lecture created", status=200)
+    )
+    return HttpResponse("Lecture created", status=200)
 
 def newQRUploadPage(request):
     if request.method == "GET":
@@ -205,36 +202,38 @@ def newQRUploadPage(request):
 @csrf_exempt
 @require_POST
 def createQRCodeUpload(request):
-    user = request.user
-    if not is_student(user):
+    try:
+        StudentProfile.objects.get(user=request.user) 
+    except:
         return HttpResponse("Unauthorized", status=401)
-    else:
-        image = request.FILES.get("imageUpload")
-        if image is None:
-            return HttpResponse("Missing image upload", status=400)
 
-        QRCodeUpload.objects.create(
-            student_id=user.student_profile.id,
-            image=image,
-            uploaded_at= datetime.now(tz=CDT)
-        )
+    image = request.FILES.get("imageUpload")
+    if image is None:
+        return HttpResponse("Missing image upload", status=400)
 
-        return HttpResponse("Upload created", status=200)
+    QRCodeUpload.objects.create(
+        student_id=user.student_profile.id,
+        image=image,
+        uploaded_at= datetime.now(tz=CDT)
+    )
+
+    return HttpResponse("Upload created", status=200)
 
 @require_GET
 def dumpUploads(request):
-    user = request.user
-    if not is_instructor(user):
+    try:
+        InstructorProfile.objects.get(user=request.user) 
+    except:
         return HttpResponse("Unauthorized", status=401)
-    else:
-        uploads = QRCodeUpload.objects.select_related("student")
 
-        data = [
-            {
-                "username": u.student.username,
-                "upload_time": u.uploaded_at
-            }
-            for u in uploads
-        ]
-        return JsonResponse(data, safe=False)
+    uploads = QRCodeUpload.objects.select_related("student")
+
+    data = [
+        {
+            "username": u.student.username,
+            "upload_time": u.uploaded_at
+        }
+        for u in uploads
+    ]
+    return JsonResponse(data, safe=False)
     
