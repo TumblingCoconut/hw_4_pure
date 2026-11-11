@@ -111,13 +111,13 @@ def create_new(request):
 
 def is_instructor(user):
     return (user.is_authenticated 
-            and hasattr(user, "instructorprofile") 
-            and not hasattr(user, "studentprofile"))
+            and hasattr(user, "instructor_profile") 
+            and not hasattr(user, "instructor_profile"))
 
 def is_student(user):
     return (user.is_authenticated 
-            and hasattr(user, "studentprofile") 
-            and not hasattr(user, "instructorprofile"))
+            and hasattr(user, "instructor_profile") 
+            and not hasattr(user, "instructor_profile"))
 
 
 @require_GET
