@@ -11,7 +11,7 @@ urlpatterns = [
     path('createUser', views.create_new, name='create_user'),
 
     path('new_course', views.newCoursePage, name='new_course'),
-    path('createCourse/', views.createCourse, name="createCourse"),
+    path('createCourse', views.createCourse, name="createCourse"),
 
     path('new_lecture', views.newLecturePage, name='new_lecture'),
     path('createLecture', views.createLecture, name='createLecture'),
