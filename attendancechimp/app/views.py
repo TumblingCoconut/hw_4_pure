@@ -110,10 +110,14 @@ def create_new(request):
     return HttpResponse("Method Not Allowed", status=405)
 
 def is_instructor(user):
-    return user.is_authenticated and hasattr(user, "instructor_profile")
+    return (user.is_authenticated 
+            and hasattr(user, "instructor_profile") 
+            and not hasattr(user, "student_profile"))
 
 def is_student(user):
-    return user.is_authenticated and hasattr(user, "student_profile")
+    return (user.is_authenticated 
+            and hasattr(user, "student_profile") 
+            and not hasattr(user, "instructor_profile"))
 
 
 @require_GET
@@ -141,7 +145,7 @@ def createCourse(request):
     possible_days = ["day-mon", "day-tue", "day-wed", "day-thu", "day-fri"]
     selected_days = [day for day in possible_days if request.POST.get(day)]
 
-    if selected_days.count(None) == len(possible_days):
+    if not selected_days:
         return HttpResponse("Select day(s) of week", status=400)
     
     Course.objects.create(
@@ -161,8 +165,8 @@ def createCourse(request):
 @require_GET
 def newLecturePage(request):
     if request.method == "GET":
-            template = loader.get_template("app/new_lecture.html")
-            return HttpResponse(template.render({}, request))
+        template = loader.get_template("app/new_lecture.html")
+        return HttpResponse(template.render({}, request))
     else: 
         return HttpResponse("Method not allowed", status=405)
 
@@ -172,7 +176,7 @@ def newLecturePage(request):
 def createLecture(request):
     user = request.user
     if not is_instructor(user):
-            return HttpResponse("Unauthorized", status=401)
+        return HttpResponse("Unauthorized", status=401)
 
     course = request.POST.get("choice")
     date = request.POST.get("date")
@@ -198,11 +202,11 @@ def newQRUploadPage(request):
 def createQRCodeUpload(request):
     user = request.user
     if not is_student(user):
-            return HttpResponse("Unauthorized", status=401)
+        return HttpResponse("Unauthorized", status=401)
 
     image = request.FILES.get("imageUpload")
     if image is None:
-         return HttpResponse("Missing image upload", status=400)
+        return HttpResponse("Missing image upload", status=400)
 
     QRCodeUpload.objects.create(
         student_id=user.student_profile.id,
